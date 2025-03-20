@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+        map: {
+          highlight: '#0EA5E9',
+          default: '#E5E7EB',
+          hover: '#F0F9FF',
+          border: '#CBD5E1',
+          tooltip: 'rgba(255, 255, 255, 0.95)',
+        }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +92,71 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+        'fade-in': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(10px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
+        'slide-up': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(20px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
+        'pulse-soft': {
+          '0%, 100%': {
+            opacity: '1'
+          },
+          '50%': {
+            opacity: '0.8'
+          }
+        },
+        'scale-in': {
+          '0%': {
+            opacity: '0',
+            transform: 'scale(0.95)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'scale(1)'
+          }
+        },
+        'scale-out': {
+          '0%': {
+            opacity: '1',
+            transform: 'scale(1)'
+          },
+          '100%': {
+            opacity: '0',
+            transform: 'scale(0.95)'
+          }
+        },
+        'pan-map': {
+          '0%, 100%': { transform: 'translate(0px, 0px)' },
+          '25%': { transform: 'translate(5px, 5px)' },
+          '50%': { transform: 'translate(0px, 5px)' },
+          '75%': { transform: 'translate(5px, 0px)' },
+        }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+        'fade-in': 'fade-in 0.5s ease-out forwards',
+        'slide-up': 'slide-up 0.5s ease-out forwards',
+        'pulse-soft': 'pulse-soft 3s infinite',
+        'scale-in': 'scale-in 0.2s ease-out',
+        'scale-out': 'scale-out 0.2s ease-out',
+        'pan-map': 'pan-map 30s ease-in-out infinite',
 			}
 		}
 	},
