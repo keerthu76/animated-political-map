@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { indianStates, StateData } from '@/lib/states';
 import MapTooltip from './MapTooltip';
 import { cn } from '@/lib/utils';
+import { ExternalLink } from 'lucide-react';
 
 interface IndiaMapProps {
   onStateClick: (state: StateData) => void;
@@ -68,7 +69,15 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
   const [startDrag, setStartDrag] = useState({ x: 0, y: 0 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageMap, setImageMap] = useState<HTMLMapElement | null>(null);
+  const [stateUrls, setStateUrls] = useState<Record<string, string>>({});
+
+  // Handle URL inputs for states
+  const handleSetStateUrl = (stateId: string, url: string) => {
+    setStateUrls(prev => ({
+      ...prev,
+      [stateId]: url
+    }));
+  };
 
   useEffect(() => {
     // Simulate loading the map data
@@ -148,6 +157,12 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
     const state = indianStates.find(s => s.id === stateId);
     if (state) {
       onStateClick(state);
+      
+      // If state has a URL, we can optionally open it
+      if (stateUrls[stateId]) {
+        // Uncomment the below line to automatically open the URL when clicked
+        // window.open(stateUrls[stateId], '_blank');
+      }
     }
   };
 
@@ -243,6 +258,34 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
         </button>
       </div>
 
+      {/* State URL input (optional) */}
+      {activeState && (
+        <div className="absolute bottom-4 left-4 right-4 z-10 bg-white/90 backdrop-blur-sm px-4 py-3 rounded-md shadow-md">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium">Set URL for {activeState.name}:</p>
+            <div className="flex gap-2">
+              <input
+                type="url"
+                value={stateUrls[activeState.id] || ''}
+                onChange={(e) => handleSetStateUrl(activeState.id, e.target.value)}
+                placeholder="https://example.com"
+                className="flex-1 px-3 py-1 text-sm border rounded-md"
+              />
+              {stateUrls[activeState.id] && (
+                <a
+                  href={stateUrls[activeState.id]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-primary text-white px-3 py-1 rounded-md text-sm flex items-center gap-1 hover:bg-primary/90"
+                >
+                  Visit <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Map Image with Image Map */}
       <div 
         className="relative w-full h-full flex items-center justify-center"
@@ -267,7 +310,7 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
             style={{ transition: 'opacity 0.5s ease' }}
           />
           
-          <map name="india-map">
+          <map name="india-map" id="india-map">
             {stateRegions.map(region => (
               region.shape === 'circle' ? (
                 <area
@@ -278,9 +321,9 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
                   title={region.name}
                   href="#"
                   onClick={(e) => handleAreaClick(e, region.id)}
-                  onMouseEnter={(e) => handleAreaHover(e, region.id)}
+                  onMouseOver={(e) => handleAreaHover(e, region.id)}
                   onMouseMove={handleAreaMouseMove}
-                  onMouseLeave={handleAreaMouseLeave}
+                  onMouseOut={handleAreaMouseLeave}
                   className={`${activeState?.id === region.id ? 'active-area' : ''}`}
                 />
               ) : (
@@ -292,9 +335,9 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
                   title={region.name}
                   href="#"
                   onClick={(e) => handleAreaClick(e, region.id)}
-                  onMouseEnter={(e) => handleAreaHover(e, region.id)}
+                  onMouseOver={(e) => handleAreaHover(e, region.id)}
                   onMouseMove={handleAreaMouseMove}
-                  onMouseLeave={handleAreaMouseLeave}
+                  onMouseOut={handleAreaMouseLeave}
                   className={`${activeState?.id === region.id ? 'active-area' : ''}`}
                 />
               )
@@ -317,12 +360,23 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
             <div className="flex flex-col gap-1">
               <p className="font-medium">{tooltipState.name}</p>
               <p className="text-xs text-muted-foreground">Click to view details</p>
+              {stateUrls[tooltipState.id] && (
+                <a 
+                  href={stateUrls[tooltipState.id]} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-primary hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Visit website <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
             </div>
           )
         }
         isVisible={!!tooltipState}
         position={tooltipPosition}
-        url={tooltipState?.url}
+        url={tooltipState && stateUrls[tooltipState.id]}
       />
     </div>
   );

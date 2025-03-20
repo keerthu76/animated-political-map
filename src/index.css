@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -152,6 +153,7 @@
   area {
     cursor: pointer;
     outline: none;
+    transition: all 0.3s ease;
   }
   
   area:hover {
@@ -160,6 +162,21 @@
   
   .active-area {
     filter: brightness(1.2);
+  }
+  
+  /* Additional highlight visual feedback for image map areas */
+  map[name="india-map"] area:hover {
+    filter: brightness(1.5) saturate(1.2);
+  }
+  
+  /* Add state highlight effect with CSS */
+  .state-highlight {
+    position: absolute;
+    background: rgba(var(--primary-rgb), 0.2);
+    border: 2px solid rgba(var(--primary-rgb), 0.5);
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 4px;
   }
   
   /* Loading animation for map data */

@@ -92,6 +92,7 @@ const MapTooltip: React.FC<MapTooltipProps> = ({
           target="_blank" 
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-primary hover:underline"
+          onClick={(e) => e.stopPropagation()}
         >
           Visit website <ExternalLink className="h-3 w-3" />
         </a>
