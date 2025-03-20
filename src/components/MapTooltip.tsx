@@ -1,19 +1,22 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { ExternalLink } from 'lucide-react';
 
 interface MapTooltipProps {
   content: React.ReactNode;
   isVisible: boolean;
   position: { x: number; y: number };
   className?: string;
+  url?: string;
 }
 
 const MapTooltip: React.FC<MapTooltipProps> = ({
   content,
   isVisible,
   position,
-  className
+  className,
+  url
 }) => {
   const [tooltipStyles, setTooltipStyles] = useState<React.CSSProperties>({
     transform: 'translate(-50%, -100%) translateY(-12px)',
@@ -83,6 +86,16 @@ const MapTooltip: React.FC<MapTooltipProps> = ({
       style={tooltipStyles}
     >
       {content}
+      {url && (
+        <a 
+          href={url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 mt-1 text-xs font-medium text-primary hover:underline"
+        >
+          Visit website <ExternalLink className="h-3 w-3" />
+        </a>
+      )}
     </div>
   );
 };

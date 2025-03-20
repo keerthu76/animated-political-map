@@ -34,6 +34,13 @@
     --ring: 221.2 83% 53.3%;
 
     --radius: 0.5rem;
+    
+    /* Map specific colors */
+    --map-default: 210 40% 90%;
+    --map-hover: 221.2 83% 85%;
+    --map-highlight: 221.2 83% 70%;
+    --map-border: 0 0% 60%;
+    --map-tooltip: 0 0% 100% / 0.9;
   }
 
   .dark {
@@ -64,6 +71,13 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
+    
+    /* Map specific colors in dark mode */
+    --map-default: 217.2 32.6% 30%;
+    --map-hover: 217.2 70% 45%;
+    --map-highlight: 221.2 83% 55%;
+    --map-border: 0 0% 40%;
+    --map-tooltip: 222.2 84% 4.9% / 0.9;
   }
 }
 
@@ -89,15 +103,15 @@
   }
 
   .map-state {
-    @apply fill-map-default stroke-map-border stroke-[0.5px] transition-all duration-300 ease-out cursor-pointer;
+    @apply fill-[hsl(var(--map-default))] stroke-[hsl(var(--map-border))] stroke-[0.5px] transition-all duration-300 ease-out cursor-pointer;
   }
 
   .map-state:hover {
-    @apply fill-map-hover stroke-map-highlight stroke-[1.5px] filter drop-shadow-md;
+    @apply fill-[hsl(var(--map-hover))] stroke-[hsl(var(--map-highlight))] stroke-[1.5px] filter drop-shadow-md;
   }
 
   .map-state.active {
-    @apply fill-map-highlight stroke-map-highlight stroke-[1.5px];
+    @apply fill-[hsl(var(--map-highlight))] stroke-[hsl(var(--map-highlight))] stroke-[1.5px];
   }
 
   .glass-card {
@@ -109,10 +123,42 @@
   }
 
   .tooltip-glassmorphism {
-    @apply bg-map-tooltip backdrop-blur-md border border-white/50 shadow-xl;
+    @apply bg-[hsl(var(--map-tooltip))] backdrop-blur-md border border-white/50 shadow-xl;
   }
 
   .state-chip {
     @apply inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full transition-colors;
+  }
+  
+  /* Animations */
+  @keyframes scale-in {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  
+  @keyframes scale-out {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0.8); opacity: 0; }
+  }
+  
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out forwards;
+  }
+  
+  .animate-scale-out {
+    animation: scale-out 0.2s ease-in forwards;
+  }
+  
+  /* Additional hover effects for the map */
+  .map-state {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .map-state:hover {
+    transform: translateY(-2px);
+  }
+  
+  .map-state.active {
+    transform: translateY(-3px);
   }
 }
