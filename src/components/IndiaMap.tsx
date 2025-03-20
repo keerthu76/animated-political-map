@@ -10,6 +10,48 @@ interface IndiaMapProps {
   className?: string;
 }
 
+// Define clickable regions based on the image
+const stateRegions = [
+  { id: 'JK', coords: '200,120,230,100,260,110,290,90,310,120,290,140,260,150,240,140,220,150,200,140', name: 'Jammu and Kashmir' },
+  { id: 'HP', coords: '220,150,250,150,270,170,250,190,220,180,210,160', name: 'Himachal Pradesh' },
+  { id: 'PB', coords: '180,160,210,160,220,180,210,200,190,210,170,190', name: 'Punjab' },
+  { id: 'UK', coords: '250,190,280,180,310,200,290,220,260,210,240,200', name: 'Uttarakhand' },
+  { id: 'HR', coords: '190,210,220,200,240,220,230,240,200,250,180,230', name: 'Haryana' },
+  { id: 'RJ', coords: '150,250,180,230,200,250,220,270,200,320,150,330,120,290,130,250', name: 'Rajasthan' },
+  { id: 'UP', coords: '230,240,260,210,290,220,330,240,340,270,310,310,270,330,240,320,220,270', name: 'Uttar Pradesh' },
+  { id: 'BR', coords: '340,270,370,260,400,280,380,310,350,320,310,310', name: 'Bihar' },
+  { id: 'SK', coords: '380,240,390,230,400,240,390,250', name: 'Sikkim' },
+  { id: 'AR', coords: '450,210,480,215,470,235,440,240,420,230', name: 'Arunachal Pradesh' },
+  { id: 'AS', coords: '420,230,440,240,460,250,430,270,400,280,370,260,390,250,410,240', name: 'Assam' },
+  { id: 'WB', coords: '380,310,400,280,430,270,440,290,420,330,390,350,370,340', name: 'West Bengal' },
+  { id: 'JH', coords: '350,320,380,310,370,340,350,360,330,350', name: 'Jharkhand' },
+  { id: 'OD', coords: '330,350,350,360,370,370,360,400,330,410,300,380,310,350', name: 'Odisha' },
+  { id: 'CT', coords: '270,330,310,310,350,320,330,350,310,350,300,380,270,370,260,350', name: 'Chhattisgarh' },
+  { id: 'MP', coords: '200,320,240,320,270,330,260,350,270,370,240,390,210,370,170,350,180,320', name: 'Madhya Pradesh' },
+  { id: 'GJ', coords: '120,290,150,330,170,350,150,370,130,390,100,380,80,360,70,320,90,300', name: 'Gujarat' },
+  { id: 'MH', coords: '150,370,170,350,210,370,240,390,230,420,190,440,150,430,130,390', name: 'Maharashtra' },
+  { id: 'TG', coords: '240,390,270,370,300,380,290,410,270,430,250,420,230,420', name: 'Telangana' },
+  { id: 'AP', coords: '230,420,250,420,270,430,290,410,330,410,350,450,310,490,260,460,230,440', name: 'Andhra Pradesh' },
+  { id: 'KA', coords: '190,440,230,440,260,460,240,490,200,510,180,490,160,450', name: 'Karnataka' },
+  { id: 'GA', coords: '160,450,180,450,175,470,155,465', name: 'Goa' },
+  { id: 'KL', coords: '200,510,220,520,215,560,195,570,180,530', name: 'Kerala' },
+  { id: 'TN', coords: '200,510,240,490,280,510,290,550,260,590,230,580,215,560,220,520', name: 'Tamil Nadu' },
+  // Northeast states
+  { id: 'MZ', coords: '440,290,450,285,460,300,450,310', name: 'Mizoram' },
+  { id: 'TR', coords: '430,310,440,300,445,315,435,325', name: 'Tripura' },
+  { id: 'ML', coords: '410,265,430,270,425,280,405,275', name: 'Meghalaya' },
+  { id: 'MN', coords: '450,270,465,265,470,280,455,290', name: 'Manipur' },
+  { id: 'NL', coords: '445,250,460,250,465,265,450,270', name: 'Nagaland' },
+  // Union Territories and other regions
+  { id: 'DL', coords: '210,235,220,230,225,240,215,245', name: 'Delhi' },
+  { id: 'LA', coords: '240,70,270,60,300,70,280,100,260,110,230,100', name: 'Ladakh' },
+  { id: 'AN', coords: '500,500,510,490,520,510,510,520', name: 'Andaman and Nicobar Islands' },
+  { id: 'CH', coords: '210,190,5', name: 'Chandigarh', shape: 'circle' },
+  { id: 'PY', coords: '255,550,5', name: 'Puducherry', shape: 'circle' },
+  { id: 'LD', coords: '130,520,5', name: 'Lakshadweep', shape: 'circle' },
+  { id: 'DN', coords: '130,370,5', name: 'Dadra and Nagar Haveli and Daman and Diu', shape: 'circle' }
+];
+
 const IndiaMap: React.FC<IndiaMapProps> = ({ 
   onStateClick, 
   activeState,
@@ -17,38 +59,37 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
 }) => {
   const [tooltipState, setTooltipState] = useState<StateData | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-  const mapRef = useRef<SVGSVGElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [mapScale, setMapScale] = useState(1);
-  const [viewBox, setViewBox] = useState("0 0 700 800");
-  const [isPanning, setIsPanning] = useState(false);
-  const [startPan, setStartPan] = useState({ x: 0, y: 0 });
-  const [translate, setTranslate] = useState({ x: 0, y: 0 });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startDrag, setStartDrag] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageMap, setImageMap] = useState<HTMLMapElement | null>(null);
 
-  // Using the public API to get better map data
   useEffect(() => {
-    const fetchMapData = async () => {
+    // Simulate loading the map data
+    const loadMap = async () => {
       try {
-        setIsLoading(true);
-        // We're simulating the API call here as we already have the SVG paths in place
-        // In a real implementation, you would fetch GeoJSON data and convert it to SVG paths
-        
-        // For demonstration, we'll use a timeout to simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // You would typically process the received GeoJSON here, but 
-        // we'll use our existing SVG paths for this example
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching map data:", error);
-        setMapError("Failed to load map data. Please try again later.");
+        console.error("Error loading map:", error);
+        setMapError("Failed to load map. Please try again later.");
         setIsLoading(false);
       }
     };
 
-    fetchMapData();
+    loadMap();
   }, []);
+
+  // Handle image load
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
 
   // Zoom functionality
   const handleZoom = (zoomIn: boolean) => {
@@ -63,54 +104,63 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
   // Pan functionality
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 0) { // Left mouse button
-      setIsPanning(true);
-      setStartPan({ x: e.clientX, y: e.clientY });
+      setIsDragging(true);
+      setStartDrag({ x: e.clientX, y: e.clientY });
     }
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isPanning) return;
+    if (!isDragging) return;
     
-    const dx = (e.clientX - startPan.x) / mapScale;
-    const dy = (e.clientY - startPan.y) / mapScale;
+    const dx = e.clientX - startDrag.x;
+    const dy = e.clientY - startDrag.y;
     
-    setTranslate(prev => ({
+    setPosition(prev => ({
       x: prev.x + dx,
       y: prev.y + dy
     }));
     
-    setStartPan({ x: e.clientX, y: e.clientY });
+    setStartDrag({ x: e.clientX, y: e.clientY });
   };
 
   const handleMouseUp = () => {
-    setIsPanning(false);
-  };
-
-  // Handle tooltip position
-  const handleStateHover = (
-    e: React.MouseEvent<SVGPathElement | SVGCircleElement>, 
-    state: StateData | null
-  ) => {
-    setTooltipState(state);
-    setTooltipPosition({ x: e.clientX, y: e.clientY });
-  };
-
-  // Handle tooltip when mouse moves over state
-  const handleStateMouseMove = (e: React.MouseEvent<SVGPathElement | SVGCircleElement>) => {
-    if (tooltipState) {
-      setTooltipPosition({ x: e.clientX, y: e.clientY });
-    }
+    setIsDragging(false);
   };
 
   // Reset map position
   const resetMap = () => {
     setMapScale(1);
-    setTranslate({ x: 0, y: 0 });
+    setPosition({ x: 0, y: 0 });
   };
 
-  // Find if a state is active
-  const isStateActive = (stateId: string) => {
-    return activeState?.id === stateId;
+  // Handle area hover
+  const handleAreaHover = (e: React.MouseEvent<HTMLAreaElement>, stateId: string) => {
+    const state = indianStates.find(s => s.id === stateId);
+    if (state) {
+      setTooltipState(state);
+      setTooltipPosition({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  // Handle area click
+  const handleAreaClick = (e: React.MouseEvent<HTMLAreaElement>, stateId: string) => {
+    e.preventDefault();
+    const state = indianStates.find(s => s.id === stateId);
+    if (state) {
+      onStateClick(state);
+    }
+  };
+
+  // Handle mouse movement for tooltip positioning
+  const handleAreaMouseMove = (e: React.MouseEvent<HTMLAreaElement>) => {
+    if (tooltipState) {
+      setTooltipPosition({ x: e.clientX, y: e.clientY });
+    }
+  };
+
+  // Handle mouse leave for tooltip
+  const handleAreaMouseLeave = () => {
+    setTooltipState(null);
   };
 
   if (isLoading) {
@@ -149,11 +199,16 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
 
   return (
     <div 
+      ref={mapRef}
       className={cn(
-        "map-container",
-        isPanning ? "cursor-grabbing" : "cursor-grab", 
+        "map-container relative overflow-hidden bg-white",
+        isDragging ? "cursor-grabbing" : "cursor-grab", 
         className
       )}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
     >
       {/* Map controls */}
       <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
@@ -188,532 +243,72 @@ const IndiaMap: React.FC<IndiaMapProps> = ({
         </button>
       </div>
 
-      {/* Map SVG */}
-      <svg
-        ref={mapRef}
-        viewBox={viewBox}
-        className="w-full h-full transition-transform duration-300 ease-out"
+      {/* Map Image with Image Map */}
+      <div 
+        className="relative w-full h-full flex items-center justify-center"
         style={{ 
-          transform: `scale(${mapScale}) translate(${translate.x}px, ${translate.y}px)` 
+          transform: `scale(${mapScale})`,
+          transition: 'transform 0.3s ease'
         }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
       >
-        {/* More accurate map of India with all states and UTs */}
-        {/* Jammu and Kashmir */}
-        <path
-          id="JK"
-          d="M200,120 L230,100 L260,110 L290,90 L310,120 L290,140 L260,150 L240,140 L220,150 L200,140 Z"
-          className={`map-state ${isStateActive('JK') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'JK') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'JK');
-            if (state) onStateClick(state);
+        <div
+          style={{ 
+            transform: `translate(${position.x}px, ${position.y}px)`,
+            transition: isDragging ? 'none' : 'transform 0.3s ease'
           }}
-        />
-        
-        {/* Himachal Pradesh */}
-        <path
-          id="HP"
-          d="M220,150 L250,150 L270,170 L250,190 L220,180 L210,160 Z"
-          className={`map-state ${isStateActive('HP') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'HP') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'HP');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Punjab */}
-        <path
-          id="PB"
-          d="M180,160 L210,160 L220,180 L210,200 L190,210 L170,190 Z"
-          className={`map-state ${isStateActive('PB') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'PB') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'PB');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Uttarakhand */}
-        <path
-          id="UK"
-          d="M250,190 L280,180 L310,200 L290,220 L260,210 L240,200 Z"
-          className={`map-state ${isStateActive('UK') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'UK') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'UK');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Haryana */}
-        <path
-          id="HR"
-          d="M190,210 L220,200 L240,220 L230,240 L200,250 L180,230 Z"
-          className={`map-state ${isStateActive('HR') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'HR') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'HR');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Delhi */}
-        <path
-          id="DL"
-          d="M210,235 L220,230 L225,240 L215,245 Z"
-          className={`map-state ${isStateActive('DL') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'DL') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'DL');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Rajasthan */}
-        <path
-          id="RJ"
-          d="M150,250 L180,230 L200,250 L220,270 L200,320 L150,330 L120,290 L130,250 Z"
-          className={`map-state ${isStateActive('RJ') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'RJ') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'RJ');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Uttar Pradesh */}
-        <path
-          id="UP"
-          d="M230,240 L260,210 L290,220 L330,240 L340,270 L310,310 L270,330 L240,320 L220,270 Z"
-          className={`map-state ${isStateActive('UP') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'UP') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'UP');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Bihar */}
-        <path
-          id="BR"
-          d="M340,270 L370,260 L400,280 L380,310 L350,320 L310,310 Z"
-          className={`map-state ${isStateActive('BR') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'BR') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'BR');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Sikkim */}
-        <path
-          id="SK"
-          d="M380,240 L390,230 L400,240 L390,250 Z"
-          className={`map-state ${isStateActive('SK') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'SK') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'SK');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Arunachal Pradesh */}
-        <path
-          id="AR"
-          d="M450,210 L480,215 L470,235 L440,240 L420,230 Z"
-          className={`map-state ${isStateActive('AR') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'AR') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'AR');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Assam */}
-        <path
-          id="AS"
-          d="M420,230 L440,240 L460,250 L430,270 L400,280 L370,260 L390,250 L410,240 Z"
-          className={`map-state ${isStateActive('AS') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'AS') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'AS');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* West Bengal */}
-        <path
-          id="WB"
-          d="M380,310 L400,280 L430,270 L440,290 L420,330 L390,350 L370,340 Z"
-          className={`map-state ${isStateActive('WB') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'WB') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'WB');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Jharkhand */}
-        <path
-          id="JH"
-          d="M350,320 L380,310 L370,340 L350,360 L330,350 Z"
-          className={`map-state ${isStateActive('JH') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'JH') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'JH');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Odisha (formerly Orissa) */}
-        <path
-          id="OD"
-          d="M330,350 L350,360 L370,370 L360,400 L330,410 L300,380 L310,350 Z"
-          className={`map-state ${isStateActive('OD') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'OD') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'OD');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Chhattisgarh */}
-        <path
-          id="CT"
-          d="M270,330 L310,310 L350,320 L330,350 L310,350 L300,380 L270,370 L260,350 Z"
-          className={`map-state ${isStateActive('CT') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'CT') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'CT');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Madhya Pradesh */}
-        <path
-          id="MP"
-          d="M200,320 L240,320 L270,330 L260,350 L270,370 L240,390 L210,370 L170,350 L180,320 Z"
-          className={`map-state ${isStateActive('MP') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'MP') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'MP');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Gujarat */}
-        <path
-          id="GJ"
-          d="M120,290 L150,330 L170,350 L150,370 L130,390 L100,380 L80,360 L70,320 L90,300 Z"
-          className={`map-state ${isStateActive('GJ') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'GJ') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'GJ');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Maharashtra */}
-        <path
-          id="MH"
-          d="M150,370 L170,350 L210,370 L240,390 L230,420 L190,440 L150,430 L130,390 Z"
-          className={`map-state ${isStateActive('MH') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'MH') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'MH');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Telangana */}
-        <path
-          id="TG"
-          d="M240,390 L270,370 L300,380 L290,410 L270,430 L250,420 L230,420 Z"
-          className={`map-state ${isStateActive('TG') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'TG') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'TG');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Andhra Pradesh */}
-        <path
-          id="AP"
-          d="M230,420 L250,420 L270,430 L290,410 L330,410 L350,450 L310,490 L260,460 L230,440 Z"
-          className={`map-state ${isStateActive('AP') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'AP') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'AP');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Karnataka */}
-        <path
-          id="KA"
-          d="M190,440 L230,440 L260,460 L240,490 L200,510 L180,490 L160,450 Z"
-          className={`map-state ${isStateActive('KA') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'KA') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'KA');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Goa */}
-        <path
-          id="GA"
-          d="M160,450 L180,450 L175,470 L155,465 Z"
-          className={`map-state ${isStateActive('GA') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'GA') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'GA');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Kerala */}
-        <path
-          id="KL"
-          d="M200,510 L220,520 L215,560 L195,570 L180,530 Z"
-          className={`map-state ${isStateActive('KL') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'KL') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'KL');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Tamil Nadu */}
-        <path
-          id="TN"
-          d="M200,510 L240,490 L280,510 L290,550 L260,590 L230,580 L215,560 L220,520 Z"
-          className={`map-state ${isStateActive('TN') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'TN') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'TN');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Mizoram */}
-        <path
-          id="MZ"
-          d="M440,290 L450,285 L460,300 L450,310 Z"
-          className={`map-state ${isStateActive('MZ') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'MZ') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'MZ');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Tripura */}
-        <path
-          id="TR"
-          d="M430,310 L440,300 L445,315 L435,325 Z"
-          className={`map-state ${isStateActive('TR') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'TR') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'TR');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Meghalaya */}
-        <path
-          id="ML"
-          d="M410,265 L430,270 L425,280 L405,275 Z"
-          className={`map-state ${isStateActive('ML') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'ML') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'ML');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Manipur */}
-        <path
-          id="MN"
-          d="M450,270 L465,265 L470,280 L455,290 Z"
-          className={`map-state ${isStateActive('MN') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'MN') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'MN');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Nagaland */}
-        <path
-          id="NL"
-          d="M445,250 L460,250 L465,265 L450,270 Z"
-          className={`map-state ${isStateActive('NL') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'NL') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'NL');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Ladakh */}
-        <path
-          id="LA"
-          d="M240,70 L270,60 L300,70 L280,100 L260,110 L230,100 Z"
-          className={`map-state ${isStateActive('LA') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'LA') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'LA');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Andaman and Nicobar Islands */}
-        <path
-          id="AN"
-          d="M500,500 L510,490 L520,510 L510,520 Z"
-          className={`map-state ${isStateActive('AN') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'AN') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'AN');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Chandigarh */}
-        <circle
-          id="CH"
-          cx="210"
-          cy="190"
-          r="5"
-          className={`map-state ${isStateActive('CH') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'CH') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'CH');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Puducherry */}
-        <circle
-          id="PY"
-          cx="255"
-          cy="550"
-          r="5"
-          className={`map-state ${isStateActive('PY') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'PY') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'PY');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Lakshadweep */}
-        <circle
-          id="LD"
-          cx="130"
-          cy="520"
-          r="5"
-          className={`map-state ${isStateActive('LD') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'LD') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'LD');
-            if (state) onStateClick(state);
-          }}
-        />
-        
-        {/* Dadra and Nagar Haveli and Daman and Diu */}
-        <circle
-          id="DN"
-          cx="130"
-          cy="370"
-          r="5"
-          className={`map-state ${isStateActive('DN') ? 'active' : ''}`}
-          onMouseEnter={(e) => handleStateHover(e, indianStates.find(s => s.id === 'DN') || null)}
-          onMouseLeave={(e) => handleStateHover(e, null)}
-          onMouseMove={handleStateMouseMove}
-          onClick={() => {
-            const state = indianStates.find(s => s.id === 'DN');
-            if (state) onStateClick(state);
-          }}
-        />
-      </svg>
+        >
+          <img
+            ref={imageRef}
+            src="/lovable-uploads/india-map.png"
+            alt="Political Map of India"
+            className={`max-w-full max-h-full object-contain ${!imageLoaded ? 'opacity-0' : 'opacity-100'}`}
+            onLoad={handleImageLoad}
+            useMap="#india-map"
+            style={{ transition: 'opacity 0.5s ease' }}
+          />
+          
+          <map name="india-map">
+            {stateRegions.map(region => (
+              region.shape === 'circle' ? (
+                <area
+                  key={region.id}
+                  shape="circle"
+                  coords={region.coords}
+                  alt={region.name}
+                  title={region.name}
+                  href="#"
+                  onClick={(e) => handleAreaClick(e, region.id)}
+                  onMouseEnter={(e) => handleAreaHover(e, region.id)}
+                  onMouseMove={handleAreaMouseMove}
+                  onMouseLeave={handleAreaMouseLeave}
+                  className={`${activeState?.id === region.id ? 'active-area' : ''}`}
+                />
+              ) : (
+                <area
+                  key={region.id}
+                  shape="poly"
+                  coords={region.coords}
+                  alt={region.name}
+                  title={region.name}
+                  href="#"
+                  onClick={(e) => handleAreaClick(e, region.id)}
+                  onMouseEnter={(e) => handleAreaHover(e, region.id)}
+                  onMouseMove={handleAreaMouseMove}
+                  onMouseLeave={handleAreaMouseLeave}
+                  className={`${activeState?.id === region.id ? 'active-area' : ''}`}
+                />
+              )
+            ))}
+          </map>
+        </div>
+      </div>
+
+      {/* Active State Overlay - Shows which state is selected */}
+      {activeState && (
+        <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm px-3 py-2 rounded-md shadow-md">
+          <p className="text-sm font-medium text-primary">{activeState.name}</p>
+        </div>
+      )}
 
       {/* Tooltip */}
       <MapTooltip 
